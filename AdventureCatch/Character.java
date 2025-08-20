@@ -1,0 +1,95 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Character {
+    private  final int maxHealth;
+    private  Weapon weapon;
+    private  int currentHealth;
+    private final String name;
+    private static List<Character> allCharacters = new ArrayList<>();
+    public Character(String n , int maxh,Weapon w){
+        this.name = n;
+        this.maxHealth = maxh;
+        this.currentHealth = maxh;
+        this.weapon = w;
+        this.allCharacters.add(this);
+    }
+    public Weapon getWeapon(){
+        return this.weapon; 
+    }
+    public void setCurrentdmg(int sb){
+        if (this.currentHealth - sb  < 0){
+            this.currentHealth = 0;
+        }else {
+            this.currentHealth -= sb;
+        }
+    }
+     public void setCurrent(int hp){
+        if (this.currentHealth+hp > this.maxHealth) {
+            this.currentHealth = this.maxHealth;
+        }else {
+            this.currentHealth += hp;
+        }
+    }
+    protected void setCurrentHealth(int h){
+        this.currentHealth = h;
+    }
+
+     public static String printStatus(){
+        String p1 = "------------------------------------------";
+        String p2 = "------------------------------------------";
+        StringBuilder sb = new StringBuilder();
+        sb.append(p1.concat("\nCharacters currently fighting :\n"));
+        if (allCharacters.isEmpty()) {
+            return "------------------------------------------\nNobody's fighting right now !\n------------------------------------------\n";
+        }
+        allCharacters.forEach(c -> {
+        sb.append(String.format(" - %s\n", c.toString())) ;
+        });
+        sb.append(p2.concat("\n"));
+        return sb.toString();
+    }
+    public static Character fight(Character c1 , Character c2){
+        while(true){
+            try {
+                
+                c1.attack(c2);
+            } catch (DeadCharacterException e) {
+                break;
+            }
+            if (c2.currentHealth<=0){
+                return c1;
+            }
+            try {
+
+                c2.attack(c1);
+            }catch (DeadCharacterException e){
+                break;
+            }
+
+            
+        }
+        if (c1.currentHealth!=0){
+                return c2;
+            }
+            return c1;
+    }
+    public int getMaxHealth(){
+        return this.maxHealth;
+    }
+    public int getCurrentHealth(){
+        return this.currentHealth;
+    }
+    public String getName(){
+        return this.name;
+    }
+    @Override
+    public String toString(){
+        if (this.currentHealth <=  0) {
+            return String.format("%s : KO",this.name);
+        }
+        return String.format("%s : %d/%d", this.name , this.currentHealth , this.maxHealth);
+    }
+    public abstract void takeDamage(int sb)throws DeadCharacterException;
+     public abstract void attack(Character c) throws DeadCharacterException;
+}
